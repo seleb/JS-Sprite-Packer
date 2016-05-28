@@ -1,0 +1,70 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Test</title>
+
+
+function Sprite(_url){
+	this.img = new Image();
+	this.img.src = _url;
+}
+
+function MyApp(){
+	this.appName = "test";
+	this.canvas = document.getElementById("output");
+	this.ctx = this.canvas.getContext("2d");
+	this.ctx.imageSmoothingEnabled = false;
+	this.reader = new FileReader();
+	this.reader.onload = function(event){
+		var sprite = new Sprite(event.target.result);
+		this.canvas.width = sprite.img.width;
+		this.canvas.height = sprite.img.height;
+		this.ctx.drawImage(sprite.img,0,0);
+	}.bind(this);
+}
+
+MyApp.prototype.init = function(){
+	// check for API support
+	if(!(window.File && window.FileReader && window.FileList && window.Blob)){
+		throw "File API unsupported";
+	}
+	document.getElementById("files").onchange = this.handleFileSelect.bind(this);
+	console.log("initialized");
+}
+MyApp.prototype.renderImage = function(file){
+	this.reader.readAsDataURL(file);
+}
+MyApp.prototype.handleFileSelect = function(event){
+	event.stopPropagation();
+	event.preventDefault();
+
+	var files = event.target.files;
+	var output = [];
+	for(var i = 0; i < files.length; ++i){
+		var f = files[i];
+		console.log(f);
+		output.push("<li>"+escape(f.name)+"</li>");
+	}
+		console.log(this);
+	this.renderImage(files[0]);
+}
+
+var app = null;
+document.addEventListener("DOMContentLoaded", function(event) { 
+app = new MyApp();
+app.init();
+});
+</script>
+</head>
+
+<body>
+<input type="file" id="files" name="files[]" multiple/>
+<br>
+<canvas id="output"></canvas>
+
+</body>
+
+</html>
