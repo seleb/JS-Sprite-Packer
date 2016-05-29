@@ -256,8 +256,8 @@ MyApp.prototype.layout = function(){
 			// check if the sprite would overlap with anything in the workspace if placed at the given location
 			valid = true;
 			outer_loop:
-			for(var y = 0; y < sprite.img.width; ++y){
-			for(var x = 0; x < sprite.img.height; ++x){
+			for(var y = 0; y < sprite.img.height; ++y){
+			for(var x = 0; x < sprite.img.width; ++x){
 				var p = ((start.y + y)*this.canvas.width + (start.x + x))*4;
 				if(imgData[p+3] != 0){
 					valid = false;
