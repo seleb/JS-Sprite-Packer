@@ -23,13 +23,28 @@
   	padding:0.2em;
   	text-shadow:
   	#957964 0px -2px 0px;
+
+  	margin-bottom: 0.5em;
   }
 
   section{
   	display:inline-block;
-  	border-radius: 25px;
-  	border:5px solid #D3D57C;
+  	border-radius: 0.5em;
+  	border-top-left-radius: 0;
+  	border-top-right-radius: 0;
+  	border-bottom:5px solid #D3D57C;
   	vertical-align: top;
+  }
+  section h2{
+  	background: #D3D57C;
+  	color:#FFF;
+  	padding:0.5em;
+  	margin:0;
+  	border-radius: 0.5em;
+  	border-bottom-left-radius: 0;
+  	border-bottom-right-radius: 0;
+  	text-shadow:
+  	#957964 0px -2px 0px;
   }
 
   canvas, img{
@@ -141,7 +156,7 @@ app.init();
 
 <section>
 <h2>Input</h2>
-<img id="input-img"></img>
+<img id="input-img" src="no_img.png"></img>
 <br>
 <input type="file" id="files" name="files[]" multiple/>
 </section>
@@ -153,7 +168,7 @@ app.init();
 
 <section>
 <h2>Output</h2>
-<img id="output-img"></img>
+<img id="output-img" src="no_img.png"></img>
 <br>
 <button onclick="app.trim();">Trim</button>
 </section>
