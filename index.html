@@ -7,13 +7,37 @@
   <title>Test</title>
 
   <style>
+  /* colors: #CAD178, #D3D57C, #C7AA74, #957964; #603140*/
   html, body{
   	padding:0;
   	margin:0;
   }
+  html body *{
+  	font-family: Century Gothic, Arial, sans-serif;
+  }
 
-  canvas{
+  h1{
+  	background:#CAD178;
+  	color:#FFF;
+  	margin:0;
+  	padding:0.2em;
+  	text-shadow:
+  	#957964 0px -2px 0px;
+  }
+
+  section{
+  	display:inline-block;
+  	border-radius: 25px;
+  	border:5px solid #D3D57C;
+  	vertical-align: top;
+  }
+
+  canvas, img{
   	border:1px solid grey;
+  }
+
+  #work-area{
+  	display:none;
   }
   </style>
 
@@ -26,7 +50,7 @@ function Sprite(_url){
 
 function MyApp(){
 	this.appName = "test";
-	this.canvas = document.getElementById("output");
+	this.canvas = document.getElementById("canvas");
 	this.ctx = this.canvas.getContext("2d");
 	this.ctx.imageSmoothingEnabled = false;
 	this.reader = new FileReader();
@@ -35,6 +59,7 @@ function MyApp(){
 		this.canvas.width = sprite.img.width;
 		this.canvas.height = sprite.img.height;
 		this.ctx.drawImage(sprite.img,0,0);
+		document.getElementById("input-img").src = sprite.img.src;
 		this.sprite = sprite;
 	}.bind(this);
 }
@@ -61,7 +86,6 @@ MyApp.prototype.handleFileSelect = function(event){
 		console.log(f);
 		output.push("<li>"+escape(f.name)+"</li>");
 	}
-		console.log(this);
 	this.renderImage(files[0]);
 }
 MyApp.prototype.trim = function(){
@@ -97,8 +121,10 @@ MyApp.prototype.trim = function(){
 	}
 	console.log(end);
 	var size = {x: end.x+1 - start.x, y: end.y+1 - start.y};
-	this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
+	this.canvas.width = size.x;
+	this.canvas.height = size.y;
 	this.ctx.drawImage(this.sprite.img, start.x, start.y, size.x, size.y, 0,0, size.x, size.y);
+	document.getElementById("output-img").src = this.canvas.toDataURL();
 }
 
 
@@ -111,11 +137,26 @@ app.init();
 </head>
 
 <body>
-<input type="file" id="files" name="files[]" multiple/>
+<h1>JS Sprite Utility</h1>
+
+<section>
+<h2>Input</h2>
+<img id="input-img"></img>
 <br>
-<canvas id="output"></canvas>
+<input type="file" id="files" name="files[]" multiple/>
+</section>
+
+<section id="work-area">
+<h2>Work Area</h2>
+<canvas id="canvas"></canvas>
+</section>
+
+<section>
+<h2>Output</h2>
+<img id="output-img"></img>
 <br>
 <button onclick="app.trim();">Trim</button>
+</section>
 
 </body>
 
