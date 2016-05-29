@@ -145,9 +145,20 @@ MyApp.prototype.onImageLoaded = function(event){
 	span.innerHTML = sprite.name;
 
 	var li = document.createElement("li");
+	var butt = document.createElement("button");
+	butt.innerHTML = "X";
+	butt.onclick = this.removeSprite.bind(this, sprite);
 	li.appendChild(img);
 	li.appendChild(span);
+	li.appendChild(butt);
 	document.getElementById("file-list").appendChild(li);
+}
+MyApp.prototype.removeSprite = function(_sprite){
+	var idx = this.sprites.indexOf(_sprite);
+	var fileList = document.getElementById("file-list");
+	console.log(fileList.childNodes);
+	fileList.removeChild(fileList.childNodes[idx]);
+	this.sprites.splice(idx, 1);
 }
 
 MyApp.prototype.init = function(){
@@ -235,9 +246,7 @@ app.init();
 <h2>Input</h2>
 <input type="file" id="files" name="files[]" multiple/>
 
-<ul id="file-list">
-
-</ul>
+<ul id="file-list"></ul>
 
 </section>
 
