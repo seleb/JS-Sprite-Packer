@@ -278,10 +278,12 @@ MyApp.prototype.layout = function(){
 		// draw a rectangle where the sprite will be placed
 		this.ctx.fillStyle = 'rgb(255,'+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+')';
 		this.ctx.strokeStyle = 'rgba(0,0,0,255)'
-		this.ctx.lineWidth = padding;
 		this.ctx.fillRect(start.x,start.y, sprite.img.width, sprite.img.height);
-		this.ctx.strokeRect(start.x-padding/2,start.y-padding/2, sprite.img.width+padding, sprite.img.height+padding);
-
+		
+		if(padding > 0){
+			this.ctx.lineWidth = padding;
+			this.ctx.strokeRect(start.x-padding/2,start.y-padding/2, sprite.img.width+padding, sprite.img.height+padding);
+		}
 		// save the sprite entry into json
 		var jsonEntry = {
 			id: sprite.name,
@@ -311,7 +313,7 @@ app.init();
 <section>
 <h2>Input</h2>
 <input type="file" id="files" name="files[]" multiple/>
-<label>Padding: <input type="number" id="padding" name="padding" value="1"/>px</label>
+<label>Padding: <input type="number" id="padding" name="padding" value="1" min="0"/>px</label>
 <ul id="file-list"></ul>
 
 </section>
