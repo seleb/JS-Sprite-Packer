@@ -4,56 +4,123 @@
 <head>
   <meta charset="utf-8">
 
-  <title>Test</title>
+  <title>JS Sprite Utility</title>
 
   <style>
-  /* colors: #CAD178, #D3D57C, #C7AA74, #957964; #603140*/
   html, body{
   	padding:0;
   	margin:0;
+  	background:#334;
+  	font-size: 0.75em;
   }
   html body *{
   	font-family: Century Gothic, Arial, sans-serif;
+  	color:#FFF;
   }
 
   h1{
-  	background:#CAD178;
-  	color:#FFF;
   	margin:0;
-  	padding:0.2em;
+  	padding:0.5rem 0;
   	text-shadow:
-  	#957964 0px -2px 0px;
+  	#112 0px 2px 0px;
 
   	margin-bottom: 0.5em;
+  	border-bottom: solid 1px #445;
+  	position: relative;
+  }
+  h1:before{
+  	content: ' ';
+  	bottom:1px;
+  	border-bottom: solid 2px #112;
+  	left:0;
+  	right:0;
+  	bottom:0;
+  	top:0;
+  	position: absolute;
+  }
+
+  #page{
+  	width:100%;
+  	max-width: 800px;
+  	margin:auto;
+  }
+
+  main, header{
+  	width:100%;
   }
 
   section{
   	display:inline-block;
-  	border-radius: 0.5em;
-  	border-top-left-radius: 0;
-  	border-top-right-radius: 0;
-  	border-bottom:5px solid #D3D57C;
   	vertical-align: top;
+  	width:50%;
   }
   section h2{
-  	background: #D3D57C;
-  	color:#FFF;
   	padding:0.5em;
   	margin:0;
-  	border-radius: 0.5em;
-  	border-bottom-left-radius: 0;
-  	border-bottom-right-radius: 0;
   	text-shadow:
-  	#957964 0px -2px 0px;
+  	#112 0px 2px 0px;
   }
 
-  canvas, img{
-  	border:1px solid grey;
+  canvas, img, ul li div{
   	image-rendering:pixelated;
+  	background: #112;
+  	border:1px solid #334;
+  	border-style: groove;
   }
 
   #work-area{
   	display:none;
+  }
+
+  button{
+  	background-color: #112;
+  	border-color: #334;
+  	border-style: groove;
+  	cursor:pointer;
+  	/*background: #797D48;
+  	border-radius: 50%;
+  	font-weight: bolder;
+  	color: #FFF;
+  	text-shadow:
+  	#18190E 0px -1px 0px;
+  	border:0;
+  	padding:0.5em;*/
+  }
+  button:hover{
+  	background: #334;
+  	text-shadow:
+  	#957964 0px -1px 0px;
+  	border-style: ridge;
+  }
+
+  input, textarea{
+  	background: #112;
+  	border-color: #334;
+  	border-style: groove;
+  }
+
+  ul, code{
+  	display:block;
+  	max-height: 25em;
+  	overflow-y: auto;
+  }
+  ul li div{
+  	width:25px;
+  	height:25px;
+  	text-align: center;
+  	display:inline-block;
+  	vertical-align: middle;
+
+  	background-position: center center;
+  	background-repeat: no-repeat no-repeat;
+  	background-size: contain;
+  }
+  ul li span{
+    width: 20em;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   </style>
 
@@ -126,22 +193,10 @@ function MyApp(){
 
 MyApp.prototype.onImageLoaded = function(event){
 	var sprite = new Sprite(event.target.result, event.target.file);
-	this.canvas.width = sprite.img.width;
-	this.canvas.height = sprite.img.height;
-	this.ctx.drawImage(sprite.img,0,0);
 	this.sprites.push(sprite);
 
-	var img = document.createElement("img");
-	img.width = sprite.img.width;
-	img.height = sprite.img.height;
-	if(img.width > 50){
-		img.height /= (img.width/50);
-		img.width = 50;
-	}if(img.height > 50){
-		img.width /= (img.height/50);
-		img.height = 50;
-	}
-	img.src = sprite.img.src;
+	var img = document.createElement("div");
+	img.style.backgroundImage = "url('" + sprite.img.src + "')";
 	var span = document.createElement("span");
 	span.innerHTML = sprite.name;
 
@@ -190,14 +245,23 @@ MyApp.prototype.trim = function(){
 	for(var i = 0; i < this.sprites.length; ++i){
 		this.sprites[i].trim();
 	}
-	document.getElementById("output-img").src = this.sprites[0].img.src;
 }
 MyApp.prototype.areaSort = function(a,b){
 	return b.getArea() - a.getArea();
 }
 MyApp.prototype.layout = function(){
+	// if there aren't any sprites, return early
+	if(this.sprites.length == 0){
+		document.getElementById("output-img").src = "no_img.png";
+		document.getElementById("output-json").innerHTML = "[]";
+		return;
+	}
+
+	// copy the array so we don't mess up the file list
+	var spritesCopy = this.sprites.slice();
+
 	// sort sprites by area
-	this.sprites.sort(this.areaSort);
+	spritesCopy.sort(this.areaSort);
 
 	var padding = parseInt(document.getElementById("padding").value,10);
 
@@ -205,9 +269,8 @@ MyApp.prototype.layout = function(){
 
 	// calculate total area covered by sprites
 	var area = 0;
-	for(var i = 0; i < this.sprites.length; ++i){
-		console.log(this.sprites[i].getArea());
-		area += this.sprites[i].getArea();
+	for(var i = 0; i < spritesCopy.length; ++i){
+		area += spritesCopy[i].getArea();
 	}
 
 	// start with a power-of-2 square with at least enough area for every sprite
@@ -221,8 +284,8 @@ MyApp.prototype.layout = function(){
 
 	// place every sprite
 	sprite_loop:
-	for(var i = 0; i < this.sprites.length; ++i){
-		var sprite = this.sprites[i];
+	for(var i = 0; i < spritesCopy.length; ++i){
+		var sprite = spritesCopy[i];
 		var start = {x:padding,y:padding};
 		var imgData = this.ctx.getImageData(0,0,this.canvas.width,this.canvas.height).data;
 		var valid = false;
@@ -250,6 +313,7 @@ MyApp.prototype.layout = function(){
 				json = [];
 
 				i = -1;
+				console.log("Failed attempt: resizing to " + this.canvas.width);
 				continue sprite_loop;
 			}
 
@@ -296,12 +360,11 @@ MyApp.prototype.layout = function(){
 		json.push(jsonEntry);
 	}
 
-
 	// replace workspace with actual sprites
-	this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+	//this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
 	for(var i = 0; i < json.length; ++i){
 		var entry = json[i];
-		this.ctx.drawImage(this.sprites[i].img,entry.x,entry.y);
+		this.ctx.drawImage(spritesCopy[i].img,entry.x,entry.y);
 	}
 
 	document.getElementById("output-img").src = this.canvas.toDataURL();
@@ -317,29 +380,37 @@ app.init();
 </head>
 
 <body>
+<div id="page">
+<header>
 <h1>JS Sprite Utility</h1>
+</header>
 
+<main role="main">
 <section>
 <h2>Input</h2>
-<input type="file" id="files" name="files[]" multiple/>
+<label>File input: <input type="file" id="files" name="files[]" multiple/></label>
+<br>
 <label>Padding: <input type="number" id="padding" name="padding" value="1" min="0"/>px</label>
-<ul id="file-list"></ul>
+<br>
+<button onclick="app.trim();app.layout();">Go</button>
+<br>
+<label>Sprites:<ul id="file-list"></ul></label>
 
-</section>
+</section><!-- 
 
-<section id="work-area">
+ --><section id="work-area">
 <h2>Work Area</h2>
 <canvas id="canvas"></canvas>
-</section>
+</section><!-- 
 
-<section>
+ --><section>
 <h2>Output</h2>
 <img id="output-img" src="no_img.png"></img>
 <br>
-<textarea id="output-json"></textarea>
-<button onclick="app.trim();app.layout();">Trim</button>
+<label>JSON:<code id="output-json">[]</code></label>
 </section>
-
+</main>
+</div>
 </body>
 
 </html>
