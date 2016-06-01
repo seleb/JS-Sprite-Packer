@@ -319,6 +319,8 @@ MyApp.prototype.areaSort = function(a,b){
 	return b.img.height - a.img.height;
 }
 MyApp.prototype.layout = function(){
+	var powerOfTwo = false; // TODO: read this from checkbox
+
 	// if there aren't any sprites, return early
 	if(this.sprites.length == 0){
 		document.getElementById("output-img").src = "no_img.png";
@@ -342,11 +344,13 @@ MyApp.prototype.layout = function(){
 		area += spritesCopy[i].getArea();
 	}
 
-	// start with a power-of-2 square with at least enough area for every sprite
-	// (no point trying to arrange within an area which is too small)
-	this.canvas.width = 2;
-	while(this.canvas.width * this.canvas.width < area){
-		this.canvas.width *= 2;
+	this.canvas.width = 1;
+	if(powerOfTwo){
+		// start with a power-of-2 square with at least enough area for every sprite
+		// (no point trying to arrange within an area which is too small)
+		while(this.canvas.width * this.canvas.width < area){
+			this.canvas.width *= 2;
+		}
 	}
 	this.canvas.height = this.canvas.width;
 	this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
@@ -373,10 +377,17 @@ MyApp.prototype.layout = function(){
 			}
 			}
 
-			// if we couldn't find an open pixel, double the workspace and start over
+			// if we couldn't find an open pixel, increase the workspace and start over
 			if(!valid){
-				this.canvas.width *= 2;
-				this.canvas.height *= 2;
+				if(powerOfTwo){
+					// if power of two, double
+					this.canvas.width *= 2;
+					this.canvas.height *= 2;
+				}else{
+					// if not power of two, increase by one
+					this.canvas.width += 1;
+					this.canvas.height += 1;
+				}
 				this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
 				json = [];
 
@@ -456,6 +467,8 @@ app.init();
 <h2>Input</h2>
 <div class="input-wrapper">
 <label>File input: <input type="file" id="files" name="files[]" multiple/></label>
+<br>
+<label>Power of 2 (faster): <input type="checkbox" id="powerOfTwo" name="powerOfTwo" checked/></label>
 <br>
 <label>Padding: <input type="number" id="padding" name="padding" value="1" min="0"/>px</label>
 <br>
