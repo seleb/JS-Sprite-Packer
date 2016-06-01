@@ -18,7 +18,7 @@
   }
   html{
   	height:100%;
-  	font-size: 0.5em;
+  	font-size: 0.6em;
   	background:#112;
   }
 
@@ -63,13 +63,20 @@
   }
 
   #page{
-  	width:100%;
-  	max-width: 100em;
-  	margin:auto;
+  	max-width: 75em;
   	background:#334;
+  	min-height: 100%;
+
+  	margin:auto;
+  	top:2em;
+  	left:2em;
+  	right:2em;
   	padding-left:1em;
   	padding-right:1em;
-  	min-height: 100%;
+
+  	border-radius: 2em;
+  	position: absolute;
+  	border: solid 1px #445;
   }
 
   main, header{
@@ -156,7 +163,7 @@
 
   ul, textarea{
   	display:block;
-  	height: 25rem;
+  	height: 20rem;
   	overflow-y: auto;
   	background:#112;
   	box-shadow: inset 0px 0px 16px #000;
@@ -573,12 +580,12 @@ app.init();
 </header>
 <hr>
 <main role="main"><section>
-<h2>Input</h2>
+<h2>Input:</h2>
 <div class="square-wrapper">
-<label>File input: <input type="file" id="files" name="files[]" multiple/></label>
-<label>Power of 2 (faster): <input type="checkbox" id="powerOfTwo" name="powerOfTwo" checked/></label>
-<label>Grid: <input type="checkbox" id="grid" name="grid" /></label>
-<label>Padding: <input type="number" id="padding" name="padding" value="1" min="0"/>px</label>
+<label>File input:&nbsp;<input type="file" id="files" name="files[]" multiple/></label>
+<label>Power of 2 (faster):&nbsp;<input type="checkbox" id="powerOfTwo" name="powerOfTwo" checked/></label>
+<label>Grid:&nbsp;<input type="checkbox" id="grid" name="grid" /></label>
+<label>Padding:&nbsp;<input type="number" id="padding" name="padding" value="1" min="0"/>&nbsp;px</label>
 <button onclick="app.trim();app.layout();">Go</button>
 </div>
 <label>Sprites:<ul id="file-list"></ul></label>
@@ -587,7 +594,7 @@ app.init();
  --><hr class="vertical"><!-- 
 
  --><section>
-<h2>Output</h2>
+<h2>Output:</h2>
 <div class="square-wrapper">
 <a id="download-link" href="no_img.png" target="_blank" download="spritesheet.png"><img id="output-img" src="no_img.png"/></a>
 </div>
