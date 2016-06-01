@@ -353,8 +353,8 @@ MyApp.prototype.layout = function(){
 			// searches for the first open pixel from the top-left
 			var imgData = this.ctx.getImageData(0,0,this.canvas.width,this.canvas.height);
 			outer_loop:
-			for(var y = start.y; y < this.canvas.height-sprite.img.height-padding; ++y){
-			for(var x = padding; x < this.canvas.width-sprite.img.width-padding; ++x){
+			for(var y = start.y; y < this.canvas.height-sprite.img.height; ++y){
+			for(var x = padding; x < this.canvas.width-sprite.img.width; ++x){
 				if(getPixelValue(imgData, x, y, 3) == 0){
 					start.x = x;
 					start.y = y;
