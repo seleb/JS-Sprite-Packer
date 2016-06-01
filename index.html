@@ -344,19 +344,17 @@ MyApp.prototype.layout = function(){
 	}
 
 
+	// calculate total area covered by sprites
+	var area = 0;
+	for(var i = 0; i < this.sprites.length; ++i){
+		area += this.sprites[i].getArea();
+	}
 	// resize and clear workspace canvas
+	// start with a square with at least enough area for every sprite
+	// (no point trying to arrange within an area which is too small)
 	this.canvas.width = 1;
-	if(this.powerOfTwo){
-		// calculate total area covered by sprites
-		var area = 0;
-		for(var i = 0; i < this.sprites.length; ++i){
-			area += this.sprites[i].getArea();
-		}
-		// start with a power-of-2 square with at least enough area for every sprite
-		// (no point trying to arrange within an area which is too small)
-		while(this.canvas.width * this.canvas.width < area){
-			this.canvas.width *= 2;
-		}
+	while(this.canvas.width * this.canvas.width < area){
+		this.canvas.width += this.powerOfTwo ? this.canvas.width : 1;
 	}
 	this.canvas.height = this.canvas.width;
 	this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
