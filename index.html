@@ -307,7 +307,7 @@ MyApp.prototype.trim = function(){
 	}
 }
 MyApp.prototype.areaSort = function(a,b){
-	return b.getArea() - a.getArea();
+	return b.img.height - a.img.height;
 }
 MyApp.prototype.layout = function(){
 	// if there aren't any sprites, return early
@@ -354,7 +354,7 @@ MyApp.prototype.layout = function(){
 			var imgData = this.ctx.getImageData(0,0,this.canvas.width,this.canvas.height);
 			outer_loop:
 			for(var y = start.y; y < this.canvas.height-sprite.img.height-padding; ++y){
-			for(var x = start.x; x < this.canvas.width-sprite.img.width-padding; ++x){
+			for(var x = padding; x < this.canvas.width-sprite.img.width-padding; ++x){
 				if(getPixelValue(imgData, x, y, 3) == 0){
 					start.x = x;
 					start.y = y;
@@ -380,18 +380,12 @@ MyApp.prototype.layout = function(){
 			// check if the sprite would overlap with anything in the workspace if placed at the given location
 			valid = true;
 			outer_loop:
-			for(var y = 0; y < sprite.img.height; ++y){
-			for(var x = 0; x < sprite.img.width; ++x){
+			for(var y = 0; y < sprite.img.height+padding; ++y){
+			for(var x = 0; x < sprite.img.width+padding; ++x){
 				if(getPixelValue(imgData, start.x+x, start.y+y, 3) != 0){
 					valid = false;
-					if(start.x < this.canvas.width-sprite.img.width-padding){
-						// move one to the right
-						start.x += 1;
-					}else{
-						// move one down and all the way to the left
-						start.y += 1;
-						start.x = 0;
-					}
+					// move one down and all the way to the left
+					start.y += 1;
 					break outer_loop;
 				}
 			}
