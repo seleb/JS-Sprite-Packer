@@ -92,9 +92,6 @@
 
   canvas, img, ul li div{
   	image-rendering:pixelated;
-  	background: #112;
-  	border:1px solid #334;
-  	border-style: groove;
   }
 
   #work-area{
@@ -103,14 +100,20 @@
 
   #output-img{
   	width: 100%;
+  	background: #112;
   }
 
 
-  .input-wrapper{
+  .square-wrapper{
   	width:100%;
   	height:0;
   	padding-bottom: 100%;
-  	border:solid 1px transparent;
+  	border:1px solid #334;
+  	border-style: groove;
+  }
+
+  label{
+  	display:block;
   }
 
   button{
@@ -148,11 +151,12 @@
   	border-color: #334;
   	border-style: groove;
   	max-width: 100%;
+  	vertical-align: middle;
   }
 
   ul, textarea{
   	display:block;
-  	max-height: 25em;
+  	height: 25rem;
   	overflow-y: auto;
   	background:#112;
   	box-shadow: inset 0px 0px 16px #000;
@@ -465,24 +469,22 @@ app.init();
 <hr>
 <main role="main"><section>
 <h2>Input</h2>
-<div class="input-wrapper">
+<div class="square-wrapper">
 <label>File input: <input type="file" id="files" name="files[]" multiple/></label>
-<br>
 <label>Power of 2 (faster): <input type="checkbox" id="powerOfTwo" name="powerOfTwo" checked/></label>
-<br>
 <label>Padding: <input type="number" id="padding" name="padding" value="1" min="0"/>px</label>
-<br>
 <button onclick="app.trim();app.layout();">Go</button>
 </div>
 <label>Sprites:<ul id="file-list"></ul></label>
-
 </section><!-- 
 
  --><hr class="vertical"><!-- 
 
  --><section>
 <h2>Output</h2>
+<div class="square-wrapper">
 <img id="output-img" src="no_img.png"></img>
+</div>
 <label>JSON:<textarea id="output-json" onclick="this.focus();this.select()" readonly="readonly" resizable="false">[]</textarea></label>
 </section>
 </main>
