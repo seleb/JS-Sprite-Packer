@@ -323,7 +323,7 @@ MyApp.prototype.areaSort = function(a,b){
 	return b.img.height - a.img.height;
 }
 MyApp.prototype.layout = function(){
-	var powerOfTwo = false; // TODO: read this from checkbox
+	var powerOfTwo = document.getElementById("powerOfTwo").checked;
 
 	// if there aren't any sprites, return early
 	if(this.sprites.length == 0){
