@@ -374,7 +374,7 @@ MyApp.prototype.layout = function(){
 	}
 
 	// copy workspace and json to output area
-	document.getElementById("output-img").src = this.canvas.toDataURL();
+	document.getElementById("output-img").src = document.getElementById("download-link").href = this.canvas.toDataURL();
 	document.getElementById("output-json").innerHTML = JSON.stringify(json);
 }
 MyApp.prototype.layoutGrid = function(_sprites){
@@ -589,7 +589,7 @@ app.init();
  --><section>
 <h2>Output</h2>
 <div class="square-wrapper">
-<img id="output-img" src="no_img.png"></img>
+<a id="download-link" href="no_img.png" target="_blank" download="spritesheet.png"><img id="output-img" src="no_img.png"/></a>
 </div>
 <label>JSON:<textarea id="output-json" onclick="this.focus();this.select()" readonly="readonly" resizable="false">[]</textarea></label>
 </section>
