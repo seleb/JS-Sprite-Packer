@@ -10,12 +10,16 @@
   html, body{
   	padding:0;
   	margin:0;
-  	background:#334;
-  	font-size: 0.75em;
+  	position: relative;
   }
   html body *{
   	font-family: Century Gothic, Arial, sans-serif;
   	color:#FFF;
+  }
+  html{
+  	height:100%;
+  	font-size: 0.5em;
+  	background:#112;
   }
 
   h1{
@@ -25,34 +29,59 @@
   	#112 0px 2px 0px;
 
   	margin-bottom: 0.5em;
-  	border-bottom: solid 1px #445;
   	position: relative;
   }
-  h1:before{
-  	content: ' ';
-  	bottom:1px;
-  	border-bottom: solid 2px #112;
-  	left:0;
+
+  hr{
+  	background:#112;
+  	height: 0;
+  	width:auto;
   	right:0;
-  	bottom:0;
+  	left:0;
+  	border-bottom: solid 1px #445;
+  	border-right: solid 1px #445;
+  	border-left: solid 2px #112;
+  	border-top: solid 2px #112;
+  }
+  hr.vertical{
+  	display:inline-block;
+  	position:absolute;
+  	height:auto;
   	top:0;
-  	position: absolute;
+  	bottom:0;
+  	left:initial;
+  	right:initial;
+  	width:0;
+  	background:#112;
+  	border-bottom: solid 1px #445;
+  	border-right: solid 1px #445;
+  	border-left: solid 2px #112;
+  	border-top: solid 2px #112;
+
+  	padding:0;
+  	margin:0;
   }
 
   #page{
   	width:100%;
-  	max-width: 800px;
+  	max-width: 100em;
   	margin:auto;
+  	background:#334;
+  	padding-left:1em;
+  	padding-right:1em;
+  	min-height: 100%;
   }
 
   main, header{
   	width:100%;
+  	position:relative;
   }
 
   section{
   	display:inline-block;
   	vertical-align: top;
-  	width:50%;
+  	width:48%;
+  	padding:1%;
   }
   section h2{
   	padding:0.5em;
@@ -72,11 +101,18 @@
   	display:none;
   }
 
+  #output-img{
+  	width: 100%;
+  }
+
   button{
   	background-color: #112;
   	border-color: #334;
   	border-style: groove;
   	cursor:pointer;
+
+  	padding:0.25em;
+  	margin:0;
   	/*background: #797D48;
   	border-radius: 50%;
   	font-weight: bolder;
@@ -85,24 +121,46 @@
   	#18190E 0px -1px 0px;
   	border:0;
   	padding:0.5em;*/
+
+  	border-radius:5px;
+
+  	vertical-align: middle;
   }
   button:hover{
   	background: #334;
-  	text-shadow:
-  	#957964 0px -1px 0px;
   	border-style: ridge;
+  	padding-top:0.3em;
+  	padding-bottom:0.2em;
+  	padding-left:0.3em;
+  	padding-right:0.2em;
   }
 
   input, textarea{
   	background: #112;
   	border-color: #334;
   	border-style: groove;
+  	max-width: 100%;
   }
 
-  ul, code{
+  ul, textarea{
   	display:block;
   	max-height: 25em;
   	overflow-y: auto;
+  	background:#112;
+  	box-shadow: inset 0px 0px 16px #000;
+  	border-radius: 8px;
+  	min-height: 64px;
+  	padding:16px;
+  	border:0;
+  	resize:none;
+  	width:100%;
+  	box-sizing:border-box;
+  }
+  ul{
+  	list-style:none;
+  }
+  ul li{
+  	display:block;
   }
   ul li div{
   	width:25px;
@@ -111,9 +169,13 @@
   	display:inline-block;
   	vertical-align: middle;
 
+  	background-color: #445;
   	background-position: center center;
   	background-repeat: no-repeat no-repeat;
   	background-size: contain;
+
+  	border-radius:50%;
+  	border:0;
   }
   ul li span{
     width: 20em;
@@ -381,10 +443,10 @@ app.init();
 
 <body>
 <div id="page">
-<header>
+<header role="header">
 <h1>JS Sprite Utility</h1>
 </header>
-
+<hr>
 <main role="main">
 <section>
 <h2>Input</h2>
@@ -403,13 +465,17 @@ app.init();
 <canvas id="canvas"></canvas>
 </section><!-- 
 
- --><section>
+ --><hr class="vertical"><section>
 <h2>Output</h2>
 <img id="output-img" src="no_img.png"></img>
 <br>
-<label>JSON:<code id="output-json">[]</code></label>
+<label>JSON:<textarea id="output-json" onclick="this.focus();this.select()" readonly="readonly" resizable="false">[]</textarea></label>
 </section>
 </main>
+<hr>
+<footer role="footer">
+<a href="http://seans.site">seans.site</a>
+</footer>
 </div>
 </body>
 
