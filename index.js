@@ -61,11 +61,6 @@ Sprite.prototype.trimTransparency = function() {
 }
 
 function MyApp() {
-	this.appName = "test";
-	this.sprites = [];
-	this.canvas = document.createElement("canvas");
-	this.ctx = this.canvas.getContext("2d");
-	this.ctx.imageSmoothingEnabled = false;
 }
 
 MyApp.prototype.onImageLoaded = function(event) {
@@ -97,9 +92,22 @@ MyApp.prototype.init = function() {
 	// check for API support
 	if(!(window.File && window.FileReader && window.FileList && window.Blob)) {
 		throw "File API unsupported";
+		this.appName = "test";
+		this.sprites = [];
+		this.canvas = document.createElement("canvas");
+		this.ctx = this.canvas.getContext("2d");
+		this.ctx.imageSmoothingEnabled = false;
+
+		document.getElementById("files").onchange = this.handleFileSelect.bind(this);
+		document.getElementById("output-json").onclick = function(event){
+			this.focus();
+			this.select()
+		};document.getElementById("go-button").onclick = function(event){
+			this.trimTransparency();
+			this.layout();
+		}.bind(this);
+		console.log("initialized");
 	}
-	document.getElementById("files").onchange = this.handleFileSelect.bind(this);
-	console.log("initialized");
 }
 MyApp.prototype.loadImage = function(file) {
 	var reader = new FileReader();
@@ -376,10 +384,3 @@ MyApp.prototype.layoutTight = function(_sprites) {
 function getPixelValue(_data, _x, _y, _c) {
 	return _data.data[(_y * _data.width + _x) * 4 + _c];
 }
-
-
-var app = null;
-document.addEventListener("DOMContentLoaded", function(event) {
-	app = new MyApp();
-	app.init();
-});

@@ -16,11 +16,11 @@
 
 <body>
 	<div id="page">
-		<header role="header">
+		<header id="header" role="header">
 			<h1>JS Sprite Packer</h1>
 		</header>
 		<hr>
-		<main role="main">
+		<main id="main" role="main">
 			<section>
 				<h2>Input:</h2>
 				<div class="square-wrapper">
@@ -29,7 +29,7 @@
 					<label>Grid:&nbsp;<input type="checkbox" id="grid" name="grid" /></label>
 					<label>Debug:&nbsp;<input type="checkbox" id="debug" name="debug" /></label>
 					<label>Padding:&nbsp;<input type="number" id="padding" name="padding" value="1" min="0"/>&nbsp;px</label>
-					<button onclick="app.trim();app.layout();">Go</button>
+					<button id="go-button">Go</button>
 				</div>
 				<label>Sprites:<ul id="file-list"></ul></label>
 			</section><!-- 
@@ -41,14 +41,19 @@
 				<div class="square-wrapper">
 					<a id="download-link" href="no_img.png" target="_blank" download="spritesheet.png"><img id="output-img" src="no_img.png" /></a>
 				</div>
-				<label>JSON:<textarea id="output-json" onclick="this.focus();this.select()" readonly="readonly" resizable="false">[]</textarea></label>
+				<label>JSON:<textarea id="output-json" readonly="readonly" resizable="false">[]</textarea></label>
 			</section>
 		</main>
 		<hr>
-		<footer role="footer">
+		<footer id="footer" role="footer">
 			<a href="https://github.com/seleb/JS-Sprite-Packer" target="_blank">source on GitHub</a> - <a href="http://seans.site" target="_blank">seans.site</a>
 		</footer>
 	</div>
 </body>
+<script>
+var app = null;
+app = new MyApp();
+app.init();
+</script>
 
 </html>
