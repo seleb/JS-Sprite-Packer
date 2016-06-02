@@ -134,6 +134,7 @@ MyApp.prototype.layout = function() {
 	// get settings
 	this.powerOfTwo = document.getElementById("powerOfTwo").checked;
 	this.grid = document.getElementById("grid").checked;
+	this.debug = document.getElementById("debug").checked;
 
 	this.padding = parseInt(document.getElementById("padding").value, 10);
 
@@ -173,7 +174,10 @@ MyApp.prototype.layout = function() {
 	}
 
 	// replace workspace with actual sprites
-	//this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+	if(!this.debug){
+		this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+	}
+
 	for(var i = 0; i < json.length; ++i) {
 		var entry = json[i];
 		this.ctx.drawImage(sprites[i].img, entry.x, entry.y);
