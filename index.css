@@ -89,7 +89,10 @@ ul li div {
 }
 #output-img {
 	width: 100%;
-	background: #112;
+	background-color:#112;
+	background-image:url("transparencyPattern.png");
+	background-size: 4%;
+	background-repeat: repeat;
 }
 .square-wrapper {
 	width: 100%;
