@@ -4,10 +4,6 @@ function Sprite(_url, _file) {
 	this.name = _file.name;
 }
 
-Sprite.prototype.getArea = function() {
-	return this.img.width * this.img.height;
-}
-
 Sprite.prototype.trim = function() {
 	var canvas = document.createElement("canvas");
 	var ctx = canvas.getContext("2d");
@@ -127,10 +123,11 @@ MyApp.prototype.trim = function() {
 		this.sprites[i].trim();
 	}
 }
-MyApp.prototype.areaSort = function(a, b) {
-	return b.img.height - a.img.height;
+MyApp.prototype.spriteSort = function(a, b) {
+	return b.h - a.h;
 }
 MyApp.prototype.layout = function() {
+
 	// get settings
 	this.powerOfTwo = document.getElementById("powerOfTwo").checked;
 	this.grid = document.getElementById("grid").checked;
@@ -145,11 +142,20 @@ MyApp.prototype.layout = function() {
 		return;
 	}
 
+	// save width/height on sprites
+	var sprites = [];
+	for(var i = 0; i < this.sprites.length; ++i){
+		sprites.push({
+			idx: i,
+			w: this.sprites[i].img.width,
+			h: this.sprites[i].img.height
+		});
+	}
 
 	// calculate total area covered by sprites
 	var area = 0;
-	for(var i = 0; i < this.sprites.length; ++i) {
-		area += this.sprites[i].getArea();
+	for(var i = 0; i < sprites.length; ++i) {
+		area += sprites[i].w * sprites[i].h;
 	}
 	// resize and clear workspace canvas
 	// start with a square with at least enough area for every sprite
@@ -162,14 +168,10 @@ MyApp.prototype.layout = function() {
 	this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 	// layout
-	var sprites;
 	var json;
 	if(this.grid) {
-		sprites = this.sprites;
 		json = this.layoutGrid(sprites);
 	} else {
-		// copy the array so we don't mess up the file list
-		sprites = this.sprites.slice()
 		json = this.layoutTight(sprites);
 	}
 
@@ -180,7 +182,9 @@ MyApp.prototype.layout = function() {
 
 	for(var i = 0; i < json.length; ++i) {
 		var entry = json[i];
-		this.ctx.drawImage(sprites[i].img, entry.x, entry.y);
+		json[i].id = this.sprites[json[i].idx].name;
+		this.ctx.drawImage(this.sprites[json[i].idx].img, entry.x, entry.y);
+		delete json[i].idx;
 	}
 
 	// copy workspace and json to output area
@@ -194,14 +198,13 @@ MyApp.prototype.layoutGrid = function(_sprites) {
 	var w = 0,
 		h = 0;
 	for(var i = 0; i < _sprites.length; ++i) {
-		w = Math.max(w, _sprites[i].img.width);
-		h = Math.max(h, _sprites[i].img.height);
+		w = Math.max(w, _sprites[i].w);
+		h = Math.max(h, _sprites[i].h);
 	}
 
 	// place every sprite
 	sprite_loop:
 		for(var i = 0; i < _sprites.length; ++i) {
-			var sprite = _sprites[i];
 			var start = {
 				x: this.padding,
 				y: this.padding
@@ -269,11 +272,11 @@ MyApp.prototype.layoutGrid = function(_sprites) {
 			}
 			// save the sprite entry into json
 			var jsonEntry = {
-				id: sprite.name,
+				idx: _sprites[i].idx,
 				x: start.x,
 				y: start.y,
-				w: sprite.img.width,
-				h: sprite.img.height
+				w: _sprites[i].w,
+				h: _sprites[i].h
 			};
 			json.push(jsonEntry);
 		}
@@ -282,7 +285,7 @@ MyApp.prototype.layoutGrid = function(_sprites) {
 }
 MyApp.prototype.layoutTight = function(_sprites) {
 	// sort sprites by area
-	_sprites.sort(this.areaSort);
+	_sprites.sort(this.spriteSort);
 
 	var json = [];
 
@@ -300,8 +303,8 @@ MyApp.prototype.layoutTight = function(_sprites) {
 				// searches for the first open pixel from the top-left
 				var imgData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
 				outer_loop:
-					for(var y = start.y; y < this.canvas.height - sprite.img.height; ++y) {
-						for(var x = this.padding; x < this.canvas.width - sprite.img.width; ++x) {
+					for(var y = start.y; y < this.canvas.height - sprite.h; ++y) {
+						for(var x = this.padding; x < this.canvas.width - sprite.w; ++x) {
 							if(getPixelValue(imgData, x, y, 3) == 0) {
 								start.x = x;
 								start.y = y;
@@ -334,8 +337,8 @@ MyApp.prototype.layoutTight = function(_sprites) {
 				// check if the sprite would overlap with anything in the workspace if placed at the given location
 				valid = true;
 				outer_loop:
-					for(var y = 0; y < sprite.img.height + this.padding; ++y) {
-						for(var x = 0; x < sprite.img.width + this.padding; ++x) {
+					for(var y = 0; y < sprite.h + this.padding; ++y) {
+						for(var x = 0; x < sprite.w + this.padding; ++x) {
 							if(getPixelValue(imgData, start.x + x, start.y + y, 3) != 0) {
 								valid = false;
 								// move one down and all the way to the left
@@ -349,19 +352,19 @@ MyApp.prototype.layoutTight = function(_sprites) {
 			// draw a rectangle where the sprite will be placed
 			this.ctx.fillStyle = 'rgb(255,' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ')';
 			this.ctx.strokeStyle = 'rgba(0,0,0,255)'
-			this.ctx.fillRect(start.x, start.y, sprite.img.width, sprite.img.height);
+			this.ctx.fillRect(start.x, start.y, sprite.w, sprite.h);
 
 			if(this.padding > 0) {
 				this.ctx.lineWidth = this.padding;
-				this.ctx.strokeRect(start.x - this.padding / 2, start.y - this.padding / 2, sprite.img.width + this.padding, sprite.img.height + this.padding);
+				this.ctx.strokeRect(start.x - this.padding / 2, start.y - this.padding / 2, sprite.w + this.padding, sprite.h + this.padding);
 			}
 			// save the sprite entry into json
 			var jsonEntry = {
-				id: sprite.name,
+				idx: sprite.idx,
 				x: start.x,
 				y: start.y,
-				w: sprite.img.width,
-				h: sprite.img.height
+				w: sprite.w,
+				h: sprite.h
 			};
 			json.push(jsonEntry);
 		}
