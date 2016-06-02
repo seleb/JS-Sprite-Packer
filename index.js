@@ -90,8 +90,16 @@ MyApp.prototype.removeSprite = function(_sprite) {
 
 MyApp.prototype.init = function() {
 	// check for API support
-	if(!(window.File && window.FileReader && window.FileList && window.Blob)) {
-		throw "File API unsupported";
+	var errors = [];
+	if(!window.File){
+		errors.push("HTML5 File API");
+	}if(!window.FileReader) {
+		errors.push("HTML5 FileReader API");
+	}if(!document.createElement('canvas').getContext) {
+		errors.push("HTML5 Canvas");
+	}
+
+	if(errors.length == 0){
 		this.appName = "test";
 		this.sprites = [];
 		this.canvas = document.createElement("canvas");
@@ -107,6 +115,14 @@ MyApp.prototype.init = function() {
 			this.layout();
 		}.bind(this);
 		console.log("initialized");
+	}else{
+		var s = "<h1>Sorry!</h1><p>Your browser doesn't support the following required features:</p><ul>";
+		for(var i = 0; i < errors.length; ++i){
+			s += "<li>" + errors[i] + "</li>";
+		}
+		s += "</ul><p>Try switching to an up-to-date version of Google Chrome or Mozilla Firefox to use this web app.</p></section>";
+		document.getElementById("main").innerHTML = s;
+		console.log("initialization failed");
 	}
 }
 MyApp.prototype.loadImage = function(file) {
