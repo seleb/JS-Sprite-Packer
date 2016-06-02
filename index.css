@@ -82,6 +82,11 @@ section h2 {
 canvas,
 img,
 ul li div {
+	-ms-interpolation-mode: nearest-neighbor;
+	image-rendering: -webkit-optimize-contrast;
+	image-rendering: -webkit-crisp-edges;
+	image-rendering: -o-crisp-edges;
+	image-rendering: -moz-crisp-edges;
 	image-rendering: pixelated;
 }
 #work-area {
