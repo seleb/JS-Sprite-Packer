@@ -4,7 +4,7 @@ function Sprite(_url, _file) {
 	this.name = _file.name;
 }
 
-Sprite.prototype.trim = function() {
+Sprite.prototype.trimTransparency = function() {
 	var canvas = document.createElement("canvas");
 	var ctx = canvas.getContext("2d");
 	canvas.width = this.img.width;
@@ -118,9 +118,9 @@ MyApp.prototype.handleFileSelect = function(event) {
 		this.loadImage(f);
 	}
 }
-MyApp.prototype.trim = function() {
+MyApp.prototype.trimTransparency = function() {
 	for(var i = 0; i < this.sprites.length; ++i) {
-		this.sprites[i].trim();
+		this.sprites[i].trimTransparency();
 	}
 }
 MyApp.prototype.spriteSort = function(a, b) {
