@@ -39,7 +39,7 @@
 			 --><section>
 				<h2>Output:</h2>
 				<div class="square-wrapper">
-					<a id="download-link" href="no_img.png" target="_blank" download="spritesheet.png"><img id="output-img" src="no_img.png" /></a>
+					<a id="download-link" href="no_img.png" target="_blank" download="spritesheet.png"><img alt="spritesheet" id="output-img" src="no_img.png" /></a>
 				</div>
 				<label>JSON:<textarea id="output-json" readonly="readonly" resizable="false">[]</textarea></label>
 			</section>
@@ -49,11 +49,12 @@
 			<a href="https://github.com/seleb/JS-Sprite-Packer" target="_blank">source on GitHub</a> - <a href="http://seans.site" target="_blank">seans.site</a>
 		</footer>
 	</div>
+	<script>
+		// initialize app
+		var app = null;
+		app = new MyApp();
+		app.init();
+	</script>
 </body>
-<script>
-var app = null;
-app = new MyApp();
-app.init();
-</script>
 
 </html>

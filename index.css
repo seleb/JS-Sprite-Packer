@@ -34,12 +34,10 @@ hr {
 }
 hr.vertical {
 	display: inline-block;
-	position: absolute;
 	height: auto;
+	position: absolute;
 	top: 0;
 	bottom: 0;
-	left: initial;
-	right: initial;
 	width: 0;
 	background: #112;
 	border-bottom: solid 1px #445;
@@ -47,7 +45,7 @@ hr.vertical {
 	border-left: solid 2px #112;
 	border-top: solid 2px #112;
 	padding: 0;
-	margin: 0;
+	margin: auto;
 }
 #page {
 	max-width: 75em;
@@ -67,6 +65,10 @@ main,
 header {
 	width: 100%;
 	position: relative;
+}
+main{
+	display: block;
+	white-space: nowrap;
 }
 section {
 	display: inline-block;
@@ -98,6 +100,9 @@ ul li div {
 	background-image:url("transparencyPattern.png");
 	background-size: 4%;
 	background-repeat: repeat;
+}#output-json{
+	white-space: normal;
+	word-break: break-all;
 }
 a img{
 	border:none;
@@ -169,6 +174,7 @@ ul {
 }
 ul li {
 	display: block;
+	white-space: nowrap;
 }
 ul li div {
 	width: 25px;
