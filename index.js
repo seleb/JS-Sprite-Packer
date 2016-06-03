@@ -166,6 +166,7 @@ MyApp.prototype.layout = function() {
 	this.padding = parseInt(document.getElementById("padding").value, 10);
 
 	// save width/height on sprites
+	// and get maximum sprite dimension
 	var sprites = [];
 	for(var i = 0; i < this.sprites.length; ++i){
 		sprites.push({
@@ -177,14 +178,19 @@ MyApp.prototype.layout = function() {
 
 	// calculate total area covered by sprites
 	var area = 0;
+	var size = 0;
 	for(var i = 0; i < sprites.length; ++i) {
 		area += sprites[i].w * sprites[i].h;
+		size = Math.max(size, sprites[i].w, sprites[i].h);
 	}
 	// resize and clear workspace canvas
 	// start with a square with at least enough area for every sprite
 	// (no point trying to arrange within an area which is too small)
 	this.canvas.width = 1;
-	while(this.canvas.width * this.canvas.width < area) {
+	while(
+		this.canvas.width * this.canvas.width < area ||
+		this.canvas.width < size+this.padding*2
+		) {
 		this.canvas.width += this.powerOfTwo ? this.canvas.width : 1;
 	}
 	this.canvas.height = this.canvas.width;
