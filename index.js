@@ -217,6 +217,10 @@ MyApp.prototype.layout = function() {
 	this.canvas.height = this.canvas.width;
 	this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+	document.getElementById("sprite-current").innerHTML = 0;
+	document.getElementById("sprite-count").innerHTML = this.sprites.length.toString();
+	document.getElementById("attempt").innerHTML = 1;
+
 	// layout
 	var json;
 	if(this.grid) {
@@ -327,6 +331,7 @@ MyApp.prototype.layoutGrid = function(_sprites) {
 MyApp.prototype.layoutTight = function(event) {
 	var detail = event.detail;
 
+	document.getElementById("sprite-current").innerHTML = detail.idx+1;
 
 	var sprite = detail.sprites[detail.idx];
 	var start = {
@@ -363,6 +368,7 @@ MyApp.prototype.layoutTight = function(event) {
 			i = -1;
 			console.log("Failed attempt: resizing to " + this.canvas.width);
 			window.setTimeout(function(){
+				document.getElementById("attempt").innerHTML = parseInt(document.getElementById("attempt").innerHTML, 10) + 1;
 				detail.idx = 0;
 				detail.output = [];
 				var event = new CustomEvent("layoutTight", {detail:detail});
