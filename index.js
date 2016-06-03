@@ -116,10 +116,31 @@ MyApp.prototype.init = function() {
 				document.getElementById("go-button").disabled = true;
 			}
 		}.bind(this);
+
+
 		document.addEventListener("complete", function(event){
 			console.log("complete");
+			// replace workspace with actual sprites
+			if(!this.debug){
+				this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+			}
+
+			for(var i = 0; i < event.detail.length; ++i) {
+				var entry = event.detail[i];
+				event.detail[i].id = this.sprites[event.detail[i].idx].name;
+				this.ctx.drawImage(this.sprites[event.detail[i].idx].img, entry.x, entry.y);
+				delete event.detail[i].idx;
+			}
+
+			// copy workspace and json to output area
+			document.getElementById("output-img").src = document.getElementById("download-link").href = this.canvas.toDataURL();
+			document.getElementById("output-json").innerHTML = JSON.stringify(event.detail);
+
 			document.getElementById("go-button").disabled = false;
 		}.bind(this));
+
+		document.addEventListener("layoutTight", this.layoutTight.bind(this));
+
 		console.log("initialized");
 	}else{
 		var s = "<h1>Sorry!</h1><p>Your browser doesn't support the following required features:</p><ul>";
@@ -201,24 +222,13 @@ MyApp.prototype.layout = function() {
 	if(this.grid) {
 		json = this.layoutGrid(sprites);
 	} else {
-		json = this.layoutTight(sprites);
+		// sort sprites by area
+		sprites.sort(this.spriteSort);
+		window.setTimeout(function(){
+			var event = new CustomEvent("layoutTight", {detail:{sprites:sprites, idx:0, output:[]}});
+			document.dispatchEvent(event);
+		},1);
 	}
-
-	// replace workspace with actual sprites
-	if(!this.debug){
-		this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
-	}
-
-	for(var i = 0; i < json.length; ++i) {
-		var entry = json[i];
-		json[i].id = this.sprites[json[i].idx].name;
-		this.ctx.drawImage(this.sprites[json[i].idx].img, entry.x, entry.y);
-		delete json[i].idx;
-	}
-
-	// copy workspace and json to output area
-	document.getElementById("output-img").src = document.getElementById("download-link").href = this.canvas.toDataURL();
-	document.getElementById("output-json").innerHTML = JSON.stringify(json);
 }
 MyApp.prototype.layoutGrid = function(_sprites) {
 	var json = [];
@@ -310,98 +320,104 @@ MyApp.prototype.layoutGrid = function(_sprites) {
 			json.push(jsonEntry);
 		}
 
-	return json;
+	// complete
+	var event = new CustomEvent("complete", {detail:json});
+	document.dispatchEvent(event);
 }
-MyApp.prototype.layoutTight = function(_sprites) {
-	// sort sprites by area
-	_sprites.sort(this.spriteSort);
+MyApp.prototype.layoutTight = function(event) {
+	var detail = event.detail;
 
-	var json = [];
 
-	// place every sprite
-	sprite_loop:
-		for(var i = 0; i < _sprites.length; ++i) {
-			var sprite = _sprites[i];
-			var start = {
-				x: this.padding,
-				y: this.padding
-			};
-			var imgData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-			var valid = false;
-			do {
-				// searches for the first open pixel from the top-left
-				var imgData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-				outer_loop:
-					for(var y = start.y; y < this.canvas.height - sprite.h; ++y) {
-						for(var x = this.padding; x < this.canvas.width - sprite.w; ++x) {
-							if(getPixelValue(imgData, x, y, 3) == 0) {
-								start.x = x;
-								start.y = y;
-								valid = true;
-								break outer_loop;
-							}
-						}
+	var sprite = detail.sprites[detail.idx];
+	var start = {
+		x: this.padding,
+		y: this.padding
+	};
+	var imgData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+	var valid = false;
+	do {
+		outer_loop:
+			for(var y = start.y; y < this.canvas.height - sprite.h; ++y) {
+				for(var x = this.padding; x < this.canvas.width - sprite.w; ++x) {
+					if(getPixelValue(imgData, x, y, 3) == 0) {
+						start.x = x;
+						start.y = y;
+						valid = true;
+						break outer_loop;
 					}
-
-				// if we couldn't find an open pixel, increase the workspace and start over
-				if(!valid) {
-					if(this.powerOfTwo) {
-						// if power of two, double
-						this.canvas.width *= 2;
-						this.canvas.height *= 2;
-					} else {
-						// if not power of two, increase by one
-						this.canvas.width += 1;
-						this.canvas.height += 1;
-					}
-					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-					json = [];
-
-					i = -1;
-					console.log("Failed attempt: resizing to " + this.canvas.width);
-					continue sprite_loop;
 				}
-
-
-				// check if the sprite would overlap with anything in the workspace if placed at the given location
-				valid = true;
-				outer_loop:
-					for(var y = 0; y < sprite.h + this.padding; ++y) {
-						for(var x = 0; x < sprite.w + this.padding; ++x) {
-							if(getPixelValue(imgData, start.x + x, start.y + y, 3) != 0) {
-								valid = false;
-								// move one down and all the way to the left
-								start.y += 1;
-								break outer_loop;
-							}
-						}
-					}
-			} while (!valid);
-
-			// draw a rectangle where the sprite will be placed
-			this.ctx.fillStyle = 'rgb(255,' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ')';
-			this.ctx.strokeStyle = 'rgba(0,0,0,255)'
-			this.ctx.fillRect(start.x, start.y, sprite.w, sprite.h);
-
-			if(this.padding > 0) {
-				this.ctx.lineWidth = this.padding;
-				this.ctx.strokeRect(start.x - this.padding / 2, start.y - this.padding / 2, sprite.w + this.padding, sprite.h + this.padding);
 			}
-			// save the sprite entry into json
-			var jsonEntry = {
-				idx: sprite.idx,
-				x: start.x,
-				y: start.y,
-				w: sprite.w,
-				h: sprite.h
-			};
-			json.push(jsonEntry);
+
+		// if we couldn't find an open pixel, increase the workspace and start over
+		if(!valid) {
+			if(this.powerOfTwo) {
+				// if power of two, double
+				this.canvas.width *= 2;
+				this.canvas.height *= 2;
+			} else {
+				// if not power of two, increase by one
+				this.canvas.width += 1;
+				this.canvas.height += 1;
+			}
+			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+			i = -1;
+			console.log("Failed attempt: resizing to " + this.canvas.width);
+			window.setTimeout(function(){
+				detail.idx = 0;
+				detail.output = [];
+				var event = new CustomEvent("layoutTight", {detail:detail});
+				document.dispatchEvent(event);
+			},50);
+			return;
 		}
 
-	return json;
+
+		// check if the sprite would overlap with anything in the workspace if placed at the given location
+		valid = true;
+		outer_loop:
+		for(var y = 0; y < sprite.h + this.padding; ++y) {
+			for(var x = 0; x < sprite.w + this.padding; ++x) {
+				if(getPixelValue(imgData, start.x + x, start.y + y, 3) != 0) {
+					valid = false;
+					// move one down and all the way to the left
+					start.y += 1;
+					break outer_loop;
+				}
+			}
+		}
+	} while (!valid);
+
+	// draw a rectangle where the sprite will be placed
+	this.ctx.fillStyle = 'rgb(255,' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ')';
+	this.ctx.strokeStyle = 'rgba(0,0,0,255)'
+	this.ctx.fillRect(start.x, start.y, sprite.w, sprite.h);
+
+	if(this.padding > 0) {
+		this.ctx.lineWidth = this.padding;
+		this.ctx.strokeRect(start.x - this.padding / 2, start.y - this.padding / 2, sprite.w + this.padding, sprite.h + this.padding);
+	}
+	// save the sprite entry into output
+	var outputEntry = {
+		idx: sprite.idx,
+		x: start.x,
+		y: start.y,
+		w: sprite.w,
+		h: sprite.h
+	};
+	detail.output.push(outputEntry);
+
+	if(detail.idx < detail.sprites.length-1){
+		// next iteration
+		window.setTimeout(function(){
+			detail.idx += 1;
+			var event = new CustomEvent("layoutTight", {detail:detail});
+			document.dispatchEvent(event);
+		},1);
+	}else{
 		// complete
 		var event = new CustomEvent("complete", {detail:detail.output});
 		document.dispatchEvent(event);
+	}
 }
 
 // returns the value of _data[(_y*_data.width + _x)*4 + _c]
