@@ -230,6 +230,7 @@ MyApp.prototype.layout = function() {
 	document.getElementById("sprite-best").innerHTML = 0;
 	document.getElementById("sprite-count").innerHTML = this.sprites.length.toString();
 	document.getElementById("attempt").innerHTML = 1;
+	document.getElementById("canvas-size").innerHTML = this.canvas.width+"x"+this.canvas.height;
 
 	// layout
 	var json;
@@ -380,11 +381,12 @@ MyApp.prototype.layoutTight = function(event) {
 			window.setTimeout(function(){
 				document.getElementById("attempt").innerHTML = parseInt(document.getElementById("attempt").innerHTML, 10) + 1;
 				document.getElementById("sprite-best").innerHTML = Math.max(parseInt(document.getElementById("sprite-best").innerHTML, 10), detail.idx);
+				document.getElementById("canvas-size").innerHTML = this.canvas.width+"x"+this.canvas.height;
 				detail.idx = 0;
 				detail.output = [];
 				var event = new CustomEvent("layoutTight", {detail:detail});
 				document.dispatchEvent(event);
-			},50);
+			}.bind(this),50);
 			return;
 		}
 
