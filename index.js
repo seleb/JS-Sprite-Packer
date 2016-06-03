@@ -119,17 +119,21 @@ MyApp.prototype.init = function() {
 
 
 		document.addEventListener("complete", function(event){
+			document.getElementById("sprite-best").innerHTML = document.getElementById("sprite-count").innerHTML;
+
 			console.log("complete");
-			// replace workspace with actual sprites
+
+			// clear out the info in the workspace
 			if(!this.debug){
 				this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
 			}
 
+			// replace workspace with actual sprites
 			for(var i = 0; i < event.detail.length; ++i) {
 				var entry = event.detail[i];
 				event.detail[i].id = this.sprites[event.detail[i].idx].name;
 				this.ctx.drawImage(this.sprites[event.detail[i].idx].img, entry.x, entry.y);
-				delete event.detail[i].idx;
+				delete event.detail[i].idx; // delete the now-irrelevant value from the json
 			}
 
 			// copy workspace and json to output area
@@ -218,6 +222,7 @@ MyApp.prototype.layout = function() {
 	this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 	document.getElementById("sprite-current").innerHTML = 0;
+	document.getElementById("sprite-best").innerHTML = 0;
 	document.getElementById("sprite-count").innerHTML = this.sprites.length.toString();
 	document.getElementById("attempt").innerHTML = 1;
 
@@ -369,6 +374,7 @@ MyApp.prototype.layoutTight = function(event) {
 			console.log("Failed attempt: resizing to " + this.canvas.width);
 			window.setTimeout(function(){
 				document.getElementById("attempt").innerHTML = parseInt(document.getElementById("attempt").innerHTML, 10) + 1;
+				document.getElementById("sprite-best").innerHTML = Math.max(parseInt(document.getElementById("sprite-best").innerHTML, 10), detail.idx);
 				detail.idx = 0;
 				detail.output = [];
 				var event = new CustomEvent("layoutTight", {detail:detail});
