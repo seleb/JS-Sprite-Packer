@@ -143,7 +143,12 @@ MyApp.prototype.init = function() {
 			document.getElementById("go-button").disabled = false;
 		}.bind(this));
 
-		document.addEventListener("layoutTight", this.layoutTight.bind(this));
+		document.addEventListener("layoutTight", function(event){
+			var f = this.layoutTight.bind(this);
+			window.setTimeout(function(){
+				f(event);
+			},1);
+		}.bind(this));
 
 		console.log("initialized");
 	}else{
@@ -420,11 +425,9 @@ MyApp.prototype.layoutTight = function(event) {
 
 	if(detail.idx < detail.sprites.length-1){
 		// next iteration
-		window.setTimeout(function(){
-			detail.idx += 1;
-			var event = new CustomEvent("layoutTight", {detail:detail});
-			document.dispatchEvent(event);
-		},1);
+		detail.idx += 1;
+		var event = new CustomEvent("layoutTight", {detail:detail});
+		document.dispatchEvent(event);
 	}else{
 		// complete
 		var event = new CustomEvent("complete", {detail:detail.output});
