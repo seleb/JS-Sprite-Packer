@@ -137,13 +137,17 @@ button {
 	border-radius: 5px;
 	vertical-align: middle;
 }
-button:hover {
+button:hover:not([disabled]) {
 	background: #334;
 	border-style: ridge;
 	padding-top: 0.3em;
 	padding-bottom: 0.2em;
 	padding-left: 0.3em;
 	padding-right: 0.2em;
+}
+button:disabled{
+	opacity: 0.5;
+	cursor:not-allowed;
 }
 input,
 textarea {

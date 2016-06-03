@@ -105,9 +105,21 @@ MyApp.prototype.init = function() {
 			this.focus();
 			this.select()
 		};document.getElementById("go-button").onclick = function(event){
-			this.trimTransparency();
-			this.layout();
+
+			// make sure there are actually sprites
+			if(this.sprites.length == 0) {
+				document.getElementById("output-img").src = "no_img.png";
+				document.getElementById("output-json").innerHTML = "[]";
+			}else{
+				this.trimTransparency();
+				this.layout();
+				document.getElementById("go-button").disabled = true;
+			}
 		}.bind(this);
+		document.addEventListener("complete", function(event){
+			console.log("complete");
+			document.getElementById("go-button").disabled = false;
+		}.bind(this));
 		console.log("initialized");
 	}else{
 		var s = "<h1>Sorry!</h1><p>Your browser doesn't support the following required features:</p><ul>";
@@ -152,13 +164,6 @@ MyApp.prototype.layout = function() {
 	this.debug = document.getElementById("debug").checked;
 
 	this.padding = parseInt(document.getElementById("padding").value, 10);
-
-	// if there aren't any sprites, return early
-	if(this.sprites.length == 0) {
-		document.getElementById("output-img").src = "no_img.png";
-		document.getElementById("output-json").innerHTML = "[]";
-		return;
-	}
 
 	// save width/height on sprites
 	var sprites = [];
@@ -388,6 +393,9 @@ MyApp.prototype.layoutTight = function(_sprites) {
 		}
 
 	return json;
+		// complete
+		var event = new CustomEvent("complete", {detail:detail.output});
+		document.dispatchEvent(event);
 }
 
 // returns the value of _data[(_y*_data.width + _x)*4 + _c]
