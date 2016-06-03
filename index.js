@@ -13,31 +13,25 @@ Sprite.prototype.trimTransparency = function() {
 
 	var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-	// find first non-transparent pixel from top-left
 	var start = {
 		x: imgData.width,
 		y: imgData.height
 	};
+	var end = {
+		x: 0,
+		y: 0
+	};
 	for(var y = 0; y < imgData.height; ++y) {
 		for(var x = 0; x < imgData.width; ++x) {
 			var a = getPixelValue(imgData, x, y, 3);
+			// find first non-transparent pixel from top-left
 			if(a > 0 && start.x > x) {
 				start.x = x;
 			}
 			if(a > 0 && start.y > y) {
 				start.y = y;
 			}
-		}
-	}
-
-	// find first non-transparent pixel from bottom-right
-	var end = {
-		x: 0,
-		y: 0
-	};
-	for(var y = imgData.height - 1; y > 0; --y) {
-		for(var x = imgData.width - 1; x > 0; --x) {
-			var a = getPixelValue(imgData, x, y, 3);
+			// find first non-transparent pixel from bottom-right
 			if(a > 0 && end.x < x) {
 				end.x = x;
 			}
