@@ -143,8 +143,8 @@ MyApp.prototype.init = function() {
 			document.getElementById("go-button").disabled = false;
 		}.bind(this));
 
-		document.addEventListener("layoutTight", function(event){
-			var f = this.layoutTight.bind(this);
+		document.addEventListener("layoutIteration", function(event){
+			var f = this.layoutIteration.bind(this);
 			window.setTimeout(function(){
 				f(event);
 			},1);
@@ -208,11 +208,13 @@ MyApp.prototype.layout = function() {
 
 	// calculate total area covered by sprites
 	var area = 0;
-	var size = 0;
+	this.maxW = this.maxH = 0;
 	for(var i = 0; i < sprites.length; ++i) {
 		area += sprites[i].w * sprites[i].h;
-		size = Math.max(size, sprites[i].w, sprites[i].h);
+		this.maxW = Math.max(this.maxW, sprites[i].w);
+		this.maxH = Math.max(this.maxH, sprites[i].h);
 	}
+	var size = Math.max(this.maxW,this.maxH);
 	// resize and clear workspace canvas
 	// start with a square with at least enough area for every sprite
 	// (no point trying to arrange within an area which is too small)
@@ -233,113 +235,16 @@ MyApp.prototype.layout = function() {
 	document.getElementById("canvas-size").innerHTML = this.canvas.width+"x"+this.canvas.height;
 
 	// layout
-	var json;
-	if(this.grid) {
-		json = this.layoutGrid(sprites);
-	} else {
+	if(!this.grid) {
 		// sort sprites by area
 		sprites.sort(this.spriteSort);
-		window.setTimeout(function(){
-			var event = new CustomEvent("layoutTight", {detail:{sprites:sprites, idx:0, output:[]}});
-			document.dispatchEvent(event);
-		},1);
 	}
+	window.setTimeout(function(){
+		var event = new CustomEvent("layoutIteration", {detail:{sprites:sprites, idx:0, output:[]}});
+		document.dispatchEvent(event);
+	},1);
 }
-MyApp.prototype.layoutGrid = function(_sprites) {
-	var json = [];
-
-	// find the largest sprite width/height
-	var w = 0,
-		h = 0;
-	for(var i = 0; i < _sprites.length; ++i) {
-		w = Math.max(w, _sprites[i].w);
-		h = Math.max(h, _sprites[i].h);
-	}
-
-	// place every sprite
-	sprite_loop:
-		for(var i = 0; i < _sprites.length; ++i) {
-			var start = {
-				x: this.padding,
-				y: this.padding
-			};
-			var imgData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-			var valid = false;
-			do {
-				// searches for the first open pixel from the top-left
-				var imgData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-				outer_loop:
-					for(var y = start.y; y < this.canvas.height - h; ++y) {
-						for(var x = this.padding; x < this.canvas.width - w; ++x) {
-							if(getPixelValue(imgData, x, y, 3) == 0) {
-								start.x = x;
-								start.y = y;
-								valid = true;
-								break outer_loop;
-							}
-						}
-					}
-
-				// if we couldn't find an open pixel, increase the workspace and start over
-				if(!valid) {
-					if(this.powerOfTwo) {
-						// if power of two, double
-						this.canvas.width *= 2;
-						this.canvas.height *= 2;
-					} else {
-						// if not power of two, increase by one
-						this.canvas.width += 1;
-						this.canvas.height += 1;
-					}
-					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-					json = [];
-
-					i = -1;
-					console.log("Failed attempt: resizing to " + this.canvas.width);
-					continue sprite_loop;
-				}
-
-
-				// check if the sprite would overlap with anything in the workspace if placed at the given location
-				valid = true;
-				outer_loop:
-					for(var y = 0; y < h + this.padding; ++y) {
-						for(var x = 0; x < w + this.padding; ++x) {
-							if(getPixelValue(imgData, start.x + x, start.y + y, 3) != 0) {
-								valid = false;
-								// move one down and all the way to the left
-								start.y += 1;
-								break outer_loop;
-							}
-						}
-					}
-			} while (!valid);
-
-			// draw a rectangle where the sprite will be placed
-			this.ctx.fillStyle = 'rgb(255,' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ')';
-			this.ctx.strokeStyle = 'rgba(0,0,0,255)'
-			this.ctx.fillRect(start.x, start.y, w, h);
-
-			if(this.padding > 0) {
-				this.ctx.lineWidth = this.padding;
-				this.ctx.strokeRect(start.x - this.padding / 2, start.y - this.padding / 2, w + this.padding, h + this.padding);
-			}
-			// save the sprite entry into json
-			var jsonEntry = {
-				idx: _sprites[i].idx,
-				x: start.x,
-				y: start.y,
-				w: _sprites[i].w,
-				h: _sprites[i].h
-			};
-			json.push(jsonEntry);
-		}
-
-	// complete
-	var event = new CustomEvent("complete", {detail:json});
-	document.dispatchEvent(event);
-}
-MyApp.prototype.layoutTight = function(event) {
+MyApp.prototype.layoutIteration = function(event) {
 	var detail = event.detail;
 
 	document.getElementById("sprite-current").innerHTML = detail.idx+1;
@@ -349,12 +254,15 @@ MyApp.prototype.layoutTight = function(event) {
 		x: this.padding,
 		y: this.padding
 	};
+	var w = this.grid ? this.maxW : sprite.w;
+	var h = this.grid ? this.maxH : sprite.h;
+
 	var imgData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
 	var valid = false;
 	do {
 		outer_loop:
-			for(var y = start.y; y < this.canvas.height - sprite.h; ++y) {
-				for(var x = this.padding; x < this.canvas.width - sprite.w; ++x) {
+			for(var y = start.y; y < this.canvas.height - h; ++y) {
+				for(var x = this.padding; x < this.canvas.width - w; ++x) {
 					if(getPixelValue(imgData, x, y, 3) == 0) {
 						start.x = x;
 						start.y = y;
@@ -377,14 +285,13 @@ MyApp.prototype.layoutTight = function(event) {
 			}
 			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 			i = -1;
-			console.log("Failed attempt: resizing to " + this.canvas.width);
 			window.setTimeout(function(){
 				document.getElementById("attempt").innerHTML = parseInt(document.getElementById("attempt").innerHTML, 10) + 1;
 				document.getElementById("sprite-best").innerHTML = Math.max(parseInt(document.getElementById("sprite-best").innerHTML, 10), detail.idx);
 				document.getElementById("canvas-size").innerHTML = this.canvas.width+"x"+this.canvas.height;
 				detail.idx = 0;
 				detail.output = [];
-				var event = new CustomEvent("layoutTight", {detail:detail});
+				var event = new CustomEvent("layoutIteration", {detail:detail});
 				document.dispatchEvent(event);
 			}.bind(this),50);
 			return;
@@ -394,8 +301,8 @@ MyApp.prototype.layoutTight = function(event) {
 		// check if the sprite would overlap with anything in the workspace if placed at the given location
 		valid = true;
 		outer_loop:
-		for(var y = 0; y < sprite.h + this.padding; ++y) {
-			for(var x = 0; x < sprite.w + this.padding; ++x) {
+		for(var y = 0; y < h + this.padding; ++y) {
+			for(var x = 0; x < w + this.padding; ++x) {
 				if(getPixelValue(imgData, start.x + x, start.y + y, 3) != 0) {
 					valid = false;
 					// move one down and all the way to the left
@@ -408,12 +315,11 @@ MyApp.prototype.layoutTight = function(event) {
 
 	// draw a rectangle where the sprite will be placed
 	this.ctx.fillStyle = 'rgb(255,' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ')';
-	this.ctx.strokeStyle = 'rgba(0,0,0,255)'
-	this.ctx.fillRect(start.x, start.y, sprite.w, sprite.h);
+	this.ctx.fillRect(start.x, start.y, w, h);
 
 	if(this.padding > 0) {
 		this.ctx.lineWidth = this.padding;
-		this.ctx.strokeRect(start.x - this.padding / 2, start.y - this.padding / 2, sprite.w + this.padding, sprite.h + this.padding);
+		this.ctx.strokeRect(start.x - this.padding / 2, start.y - this.padding / 2, w + this.padding, h + this.padding);
 	}
 	// save the sprite entry into output
 	var outputEntry = {
@@ -428,7 +334,7 @@ MyApp.prototype.layoutTight = function(event) {
 	if(detail.idx < detail.sprites.length-1){
 		// next iteration
 		detail.idx += 1;
-		var event = new CustomEvent("layoutTight", {detail:detail});
+		var event = new CustomEvent("layoutIteration", {detail:detail});
 		document.dispatchEvent(event);
 	}else{
 		// complete
